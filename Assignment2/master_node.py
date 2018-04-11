@@ -1,48 +1,49 @@
-# first of all import the socket library
-import socket
+print("yo")
+from mpi4py import MPI
 
-# next create a socket object
-s = socket.socket()
-print("Socket successfully created")
+rank = MPI.COMM_WORLD.Get_rank()
 
-# reserve a port on your computer in our
-# case it is 12345 but it can be anything
-port = 12345
 
-# Next bind to the port
-# we have not typed any ip in the ip field
-# instead we have inputted an empty string
-# this makes the server listen to requests
-# coming from other computers on the network
-s.bind(('', port))
-print("socket binded to %s" % (port))
+def log(msg, *args):
+    if rank == 0:
+        print(msg % args)
 
-# put the socket into listening mode
-s.listen(5)
-print("socket is listening")
 
-# a forever loop until we interrupt it or
-# an error occurs
+log('')
+
+info = MPI.INFO_NULL
+
+port = MPI.Open_port(info)
+log("opened port: '%s'", port)
+
+service = 'pyeval'
+MPI.Publish_name(service, info, port)
+log("published service: '%s'", service)
+
+# MPI.COMM_WORLD.Spawn("./client.py", maxprocs=1)
+
+root = 0
+log('waiting for client connection...')
+comm = MPI.COMM_WORLD.Accept(port, info, root)
+log('client connected...')
+
 while True:
-
-    # Establish connection with client.
-    c, addr = s.accept()
-    print('Got connection from', addr)
-
-    # Get data from client
-    data = c.recv(1024)
-
-    # Reverse data received from client
-    data = data[::-1]
-
-    if not data:
+    done = False
+    if rank == root:
+        message = comm.recv(source=0, tag=0)
+        if message is None:
+            done = True
+        else:
+            print('eval(%r) -> %r' % (message, eval(message)))
+    done = MPI.COMM_WORLD.bcast(done, root)
+    if done:
         break
 
-    # Send back reversed data to client
-    c.sendall(data)
+log('disconnecting client...')
+comm.Disconnect()
 
-    # send a thank you message to the client.
-    # c.send('\n Thank you for sending message!!!!')
+log('upublishing service...')
+MPI.Unpublish_name(service, info, port)
 
-    # Close the connection with the client
-    c.close()
+log('closing port...')
+MPI.Close_port(port)

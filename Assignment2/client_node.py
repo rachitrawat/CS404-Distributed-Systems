@@ -1,29 +1,42 @@
-# Import socket module
-import socket
+print("Gello")
+from mpi4py import MPI
 
-# Create a socket object
-s = socket.socket()
-s1 = socket.socket()
+rank = MPI.COMM_WORLD.Get_rank()
 
-# Define the port on which you want to connect
-port = 12345
 
-# connect to the server on local computer
-s.connect(('127.0.0.1', port))
-s1.connect(('127.0.0.1', port))
+def log(msg, *args):
+    if rank == 0:
+        print(msg % args)
 
-# Send data to server 'Hello world'
 
-## s.sendall('Hello World')
+info = MPI.INFO_NULL
+service = "pyeval"
+log("looking-up service '%s'", service)
+port = MPI.Lookup_name(service)
+log("service located  at port '%s'", port)
 
-input_string = input("Enter data you want to send->")
-s.sendall(input_string.encode('ascii'))
-s1.sendall("S2".encode('ascii'))
+root = 0
+log('waiting for server connection...')
+comm = MPI.COMM_WORLD.Connect(port, info, root)
+log('server connected...')
 
-# receive data from the server
-print(s.recv(1024).decode('ascii'))
-print(s1.recv(1024).decode('ascii'))
+while True:
+    done = False
+    if rank == root:
+        try:
+            message = input('pyeval>>> ')
+            if message == 'quit':
+                message = None
+                done = True
+        except EOFError:
+            message = None
+            done = True
+        comm.send(message, dest=0, tag=0)
+    else:
+        message = None
+    done = MPI.COMM_WORLD.bcast(done, root)
+    if done:
+        break
 
-# close the connection
-s.close()
-s1.close()
+log('disconnecting server...')
+comm.Disconnect()
