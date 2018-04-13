@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import random
 
 from mpi4py import MPI
 
@@ -33,6 +34,8 @@ log('Server: client connected...')
 
 # index
 index = {}
+# load = number of queries pertaining to a given client node
+load = {}
 
 
 # while True:
@@ -51,16 +54,31 @@ index = {}
 #         break
 
 # allocate data to client nodes: 1-100,101-200.....
+# set initial load to 0 for every client
 def allocate_data():
     count = 0
     for i in range(0, M):
         data = list(range(count + 1, (count + 1) + 100))
         comm.send(data, dest=i, tag=0)
         index[i] = data
+        load[i] = 0
         count += 100
 
 
+# perform search
+def search():
+    for i in range(0, M):
+        rand_num = random.randint(1, M * 100)
+        for client, data in index.items():  # for name, age in list.items():  (for Python 3.x)
+            if rand_num in data:
+                # send query to correct client
+                comm.send(rand_num, dest=client, tag=0)
+                # increase load by 1
+                load[client] += 1
+
+
 allocate_data()
+search()
 
 # message = comm.recv(source=0, tag=0)
 # message1 = comm.recv(source=1, tag=1)
