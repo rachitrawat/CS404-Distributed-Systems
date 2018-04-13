@@ -12,14 +12,14 @@ def log(msg, *args):
 
 info = MPI.INFO_NULL
 service = "pyeval"
-log("looking-up service '%s'", service)
+log("Client: looking-up service '%s'", service)
 port = MPI.Lookup_name(service)
-log("service located  at port '%s'", port)
+log("Client: service located  at port '%s'", port)
 
 root = 0
-log('waiting for server connection...')
+log('Client: waiting for server connection...')
 comm = MPI.COMM_WORLD.Connect(port, info, root)
-log('server connected...')
+log('Client: server connected...')
 
 while True:
     done = False
@@ -39,5 +39,5 @@ while True:
     if done:
         break
 
-log('disconnecting server...')
+log('Client: disconnecting server...')
 comm.Disconnect()

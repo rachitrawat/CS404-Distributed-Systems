@@ -15,18 +15,18 @@ log('')
 info = MPI.INFO_NULL
 
 port = MPI.Open_port(info)
-log("opened port: '%s'", port)
+log("Server: opened port: '%s'", port)
 
 service = 'pyeval'
 MPI.Publish_name(service, info, port)
-log("published service: '%s'", service)
+log("Server: published service: '%s'", service)
 
 MPI.COMM_WORLD.Spawn("./client.py", maxprocs=1)
 
 root = 0
-log('waiting for client connection...')
+log('Server: waiting for client connection...')
 comm = MPI.COMM_WORLD.Accept(port, info, root)
-log('client connected...')
+log('Server: client connected...')
 
 while True:
     done = False
@@ -43,11 +43,11 @@ while True:
     if done:
         break
 
-log('disconnecting client...')
+log('Server: disconnecting client...')
 comm.Disconnect()
 
-log('upublishing service...')
+log('Server: unpublishing service...')
 MPI.Unpublish_name(service, info, port)
 
-log('closing port...')
+log('Server: closing port...')
 MPI.Close_port(port)
