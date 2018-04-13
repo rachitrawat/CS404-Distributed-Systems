@@ -1,4 +1,5 @@
-print("yo")
+#! /usr/bin/env python
+
 from mpi4py import MPI
 
 rank = MPI.COMM_WORLD.Get_rank()
@@ -20,7 +21,7 @@ service = 'pyeval'
 MPI.Publish_name(service, info, port)
 log("published service: '%s'", service)
 
-# MPI.COMM_WORLD.Spawn("./client.py", maxprocs=1)
+MPI.COMM_WORLD.Spawn("./client.py", maxprocs=1)
 
 root = 0
 log('waiting for client connection...')
@@ -34,7 +35,10 @@ while True:
         if message is None:
             done = True
         else:
-            print('eval(%r) -> %r' % (message, eval(message)))
+            try:
+                print('eval(%r) -> %r' % (message, eval(message)))
+            except Exception:
+                print("invalid expression: %s" % message)
     done = MPI.COMM_WORLD.bcast(done, root)
     if done:
         break

@@ -1,4 +1,5 @@
-print("Gello")
+#! /usr/bin/env python
+
 from mpi4py import MPI
 
 rank = MPI.COMM_WORLD.Get_rank()
