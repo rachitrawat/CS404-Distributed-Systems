@@ -6,38 +6,39 @@ rank = MPI.COMM_WORLD.Get_rank()
 
 
 def log(msg, *args):
-    if rank == 0:
-        print(msg % args)
+    print(msg % args)
 
 
 info = MPI.INFO_NULL
 service = "pyeval"
-log("Client: looking-up service '%s'", service)
+log("Client %s: looking-up service %s", rank, service)
 port = MPI.Lookup_name(service)
-log("Client: service located  at port '%s'", port)
+log("Client %s: service located  at port %s", rank, port)
 
 root = 0
-log('Client: waiting for server connection...')
+log('Client %s: waiting for server connection...', rank)
 comm = MPI.COMM_WORLD.Connect(port, info, root)
-log('Client: server connected...')
+log('Client %s: server connected...', rank)
 
-while True:
-    done = False
-    if rank == root:
-        try:
-            message = input('pyeval>>> ')
-            if message == 'quit':
-                message = None
-                done = True
-        except EOFError:
-            message = None
-            done = True
-        comm.send(message, dest=0, tag=0)
-    else:
-        message = None
-    done = MPI.COMM_WORLD.bcast(done, root)
-    if done:
-        break
+# while True:
+#     done = False
+#     if rank == root:
+#         try:
+#             message = '1+1'
+#             if message == 'quit':
+#                 message = None
+#                 done = True
+#         except EOFError:
+#             message = None
+#             done = True
+#         comm.send(message, dest=0, tag=0)
+#     else:
+#         message = None
+#     done = MPI.COMM_WORLD.bcast(done, root)
+#     if done:
+#         break
 
-log('Client: disconnecting server...')
+comm.send("1+1", dest=0, tag=0)
+
+log('Client %s: disconnecting server...', rank)
 comm.Disconnect()
