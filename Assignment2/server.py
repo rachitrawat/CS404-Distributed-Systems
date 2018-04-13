@@ -6,8 +6,7 @@ rank = MPI.COMM_WORLD.Get_rank()
 
 
 def log(msg, *args):
-    if rank == 0:
-        print(msg % args)
+    print(msg % args)
 
 
 log('')
@@ -21,9 +20,9 @@ service = 'pyeval'
 MPI.Publish_name(service, info, port)
 log("Server: published service: '%s'", service)
 
-MPI.COMM_WORLD.Spawn("./client.py", maxprocs=1)
+MPI.COMM_WORLD.Spawn("./client.py", maxprocs=5)
 
-root = 0
+root = 1
 log('Server: waiting for client connection...')
 comm = MPI.COMM_WORLD.Accept(port, info, root)
 log('Server: client connected...')
