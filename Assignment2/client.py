@@ -6,11 +6,12 @@ rank = MPI.COMM_WORLD.Get_rank()
 
 
 def log(msg, *args):
+    print()
     print(msg % args)
 
 
 info = MPI.INFO_NULL
-service = "pyeval"
+service = "search"
 log("Client %s: looking-up service %s", rank, service)
 port = MPI.Lookup_name(service)
 log("Client %s: service located  at port %s", rank, port)
@@ -19,6 +20,7 @@ root = 0
 log('Client %s: waiting for server connection...', rank)
 comm = MPI.COMM_WORLD.Connect(port, info, root)
 log('Client %s: server connected...', rank)
+
 
 # while True:
 #     done = False
@@ -38,7 +40,12 @@ log('Client %s: server connected...', rank)
 #     if done:
 #         break
 
-comm.send("1+1", dest=0, tag=0)
+def initialize_data():
+    data = comm.recv(source=0, tag=0)
+    log('Client %s has received data: %s...', rank, data)
+
+
+initialize_data()
 
 log('Client %s: disconnecting server...', rank)
 comm.Disconnect()
