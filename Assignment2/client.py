@@ -21,6 +21,11 @@ log('Client %s: waiting for server connection...', rank)
 comm = MPI.COMM_WORLD.Connect(port, info, root)
 log('Client %s: server connected...', rank)
 
+# data of each client
+data = []
+# load = number of queries pertaining to a given client node
+load = {}
+
 
 # while True:
 #     done = False
@@ -43,9 +48,14 @@ log('Client %s: server connected...', rank)
 def initialize_data():
     data = comm.recv(source=0, tag=0)
     log('Client %s has received data: %s...', rank, data)
+    load[rank] = 0
 
 
 initialize_data()
+
+while (True):
+    query = comm.recv(source=0, tag=0)
+    load[rank] += 1
 
 log('Client %s: disconnecting server...', rank)
 comm.Disconnect()

@@ -80,11 +80,6 @@ def search():
 allocate_data()
 search()
 
-# message = comm.recv(source=0, tag=0)
-# message1 = comm.recv(source=1, tag=1)
-
-# print(message, message1)
-
 log('Server: disconnecting client...')
 comm.Disconnect()
 
