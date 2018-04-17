@@ -27,24 +27,6 @@ data = []
 load = {}
 
 
-# while True:
-#     done = False
-#     if rank == root:
-#         try:
-#             message = '1+1'
-#             if message == 'quit':
-#                 message = None
-#                 done = True
-#         except EOFError:
-#             message = None
-#             done = True
-#         comm.send(message, dest=0, tag=0)
-#     else:
-#         message = None
-#     done = MPI.COMM_WORLD.bcast(done, root)
-#     if done:
-#         break
-
 def initialize_data():
     data = comm.recv(source=0, tag=0)
     log('Client %s has received data: %s...', rank, data)
@@ -55,7 +37,12 @@ initialize_data()
 
 while (True):
     query = comm.recv(source=0, tag=0)
-    load[rank] += 1
+    if query == "END":
+        log("Load at client %s is %s", rank, load[rank])
+        break
+    else:
+        log("Client %s: Received query %s from server", rank, query)
+        load[rank] += 1
 
 log('Client %s: disconnecting server...', rank)
 comm.Disconnect()

@@ -38,21 +38,6 @@ index = {}
 load = {}
 
 
-# while True:
-#     done = False
-#     if rank == root:
-#         message = comm.recv(source=0, tag=0)
-#         if message is None:
-#             done = True
-#         else:
-#             try:
-#                 print('eval(%r) -> %r' % (message, eval(message)))
-#             except Exception:
-#                 print("invalid expression: %s" % message)
-#     done = MPI.COMM_WORLD.bcast(done, root)
-#     if done:
-#         break
-
 # allocate data to client nodes: 1-100,101-200.....
 # set initial load to 0 for every client
 def allocate_data():
@@ -69,16 +54,24 @@ def allocate_data():
 def search():
     for i in range(0, M):
         rand_num = random.randint(1, M * 100)
-        for client, data in index.items():  # for name, age in list.items():  (for Python 3.x)
+        for client, data in index.items():
             if rand_num in data:
                 # send query to correct client
+                log("Server: Sending query %s to client %s", rand_num, client)
                 comm.send(rand_num, dest=client, tag=0)
                 # increase load by 1
                 load[client] += 1
 
 
+# tell clients to print load and disconnect
+def print_load():
+    for i in range(0, M):
+        comm.send("END", dest=i, tag=0)
+
+
 allocate_data()
 search()
+print_load()
 
 log('Server: disconnecting client...')
 comm.Disconnect()
