@@ -24,11 +24,9 @@ index = {}
 
 
 # allocate data to client nodes: 1-100,101-200.....
-# set initial load to 0 for every client
 def allocate_data():
     data = list(range((rank * 100) + 1, (rank + 1) * 100 + 1))
     index[rank] = data
-    # load[rank] = 0
 
 
 # sync index across nodes
@@ -46,17 +44,18 @@ def send_queries_randomly():
         query = random.randint(1, size * 100)
         client = random.randint(0, size - 1)
         comm.send(query, dest=client, tag=0)
-        # log('Query %s randomly sent to client %s', query, client)
+        log('Query %s randomly sent to client %s', query, client)
 
 
 allocate_data()
 sync_index()
+
 if rank == 0:
     send_queries_randomly()
 
-while (True):
+for i in range(0, M):
     query = comm.recv(source=0, tag=0)
-    log('Client %s: received query %s', rank, query)
+    # log('Client %s: received query %s', rank, query)
     if query not in index[rank]:
         for client, data in index.items():
             if query in data:
