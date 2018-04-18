@@ -1,6 +1,10 @@
 #! /usr/bin/env python
+import random
 
 from mpi4py import MPI
+
+# number of queries
+M = 10
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -40,15 +44,23 @@ def sync_index():
 
 allocate_data()
 sync_index()
-#
-# while (True):
-#     query = comm.recv(source=0, tag=0)
-#     if query == "END":
-#         log("Load at client %s is %s", rank, load[rank])
-#         break
-#     else:
-#         log("Client %s: Received query %s from server", rank, query)
-#         load[rank] += 1
-#
+
+if rank == 0:
+    for i in range(0, M):
+        # generate random query & send to random nodes
+        query = random.randint(1, (size + 1) * 100)
+        comm.send(query, dest=random.randint(0, size - 1), tag=0)
+
+while (True):
+    query = comm.recv(source=0, tag=0)
+    log('Client %s: received query %s', rank, query)
+    # if query not with client
+    if query not in index[rank]:
+        for client, data in index.items():
+            if query in data:
+                # send query to correct client based on index
+                log("Client %s: Sending query %s to client %s", rank, query, client)
+                comm.send(query, dest=client, tag=0)
+
 # log('Client %s: disconnecting server...', rank)
 # comm.Disconnect()
