@@ -28,6 +28,7 @@ index = {}
 def allocate_data():
     data = list(range((rank * 100) + 1, (rank + 1) * 100 + 1))
     index[rank] = data
+    log('Client %s allocated data %s', rank, data)
 
 
 # sync index across nodes
@@ -39,7 +40,7 @@ def sync_index():
                 index[k] = v
 
 
-# generate M random queries & send to random nodes
+# generate M zipf distributed queries & send to random nodes
 def send_queries_randomly():
     for i in range(0, M):
         query = np.random.zipf(2)

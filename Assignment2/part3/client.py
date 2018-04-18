@@ -27,6 +27,7 @@ index = {}
 def allocate_data():
     data = list(range((rank * 100) + 1, (rank + 1) * 100 + 1))
     index[rank] = data
+    log('Client %s allocated data %s', rank, data)
 
 
 # sync index across nodes
