@@ -1,0 +1,6 @@
+# part 1 & 2:
+mpiexec --oversubscribe -np 1 python server.py
+
+# part 3 & 4:
+mpiexec --oversubscribe -np <no of processes> python client.py
+
