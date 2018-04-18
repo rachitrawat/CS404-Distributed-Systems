@@ -52,7 +52,7 @@ def allocate_data():
         count += 100
 
 
-# perform search
+# generate M queries based on a zipf distribution
 def search():
     for i in range(0, M):
         rand_num = np.random.zipf(2)

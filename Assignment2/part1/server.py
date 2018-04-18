@@ -51,7 +51,7 @@ def allocate_data():
         count += 100
 
 
-# perform search
+# generate M queries based on a random distribution
 def search():
     for i in range(0, M):
         rand_num = random.randint(1, M * 100)
