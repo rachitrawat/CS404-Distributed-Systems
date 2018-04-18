@@ -19,8 +19,6 @@ def log(msg, *args):
 
 # data of each client
 data = []
-# load = number of queries pertaining to a given client node
-load = {}
 # index
 index = {}
 
@@ -30,7 +28,7 @@ index = {}
 def allocate_data():
     data = list(range((rank * 100) + 1, (rank + 1) * 100 + 1))
     index[rank] = data
-    load[rank] = 0
+    # load[rank] = 0
 
 
 # sync index across nodes
@@ -42,25 +40,28 @@ def sync_index():
                 index[k] = v
 
 
+def send_queries_randomly():
+    for i in range(0, M):
+        # generate M random queries & send to random nodes
+        query = random.randint(1, size * 100)
+        client = random.randint(0, size - 1)
+        comm.send(query, dest=client, tag=0)
+        # log('Query %s randomly sent to client %s', query, client)
+
+
 allocate_data()
 sync_index()
-
 if rank == 0:
-    for i in range(0, M):
-        # generate random query & send to random nodes
-        query = random.randint(1, (size + 1) * 100)
-        comm.send(query, dest=random.randint(0, size - 1), tag=0)
+    send_queries_randomly()
 
 while (True):
     query = comm.recv(source=0, tag=0)
     log('Client %s: received query %s', rank, query)
-    # if query not with client
     if query not in index[rank]:
         for client, data in index.items():
             if query in data:
                 # send query to correct client based on index
                 log("Client %s: Sending query %s to client %s", rank, query, client)
                 comm.send(query, dest=client, tag=0)
-
-# log('Client %s: disconnecting server...', rank)
-# comm.Disconnect()
+    else:
+        log("Client %s: No need to redirect query %s", rank, query)
