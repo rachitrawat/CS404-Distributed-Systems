@@ -2,6 +2,7 @@
 import random
 
 from mpi4py import MPI
+import matplotlib.pyplot as plt
 
 M = int(input("\nEnter number of client nodes: "))
 
@@ -81,3 +82,9 @@ MPI.Unpublish_name(service, info, port)
 
 log('Server: closing port...')
 MPI.Close_port(port)
+
+# plot node id vs load graph
+plt.xlabel('Node ID', fontsize=16)
+plt.ylabel('Load', fontsize=16)
+plt.bar(list(load.keys()), load.values(), color='g')
+plt.show()

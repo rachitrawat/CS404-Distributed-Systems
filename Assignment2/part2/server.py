@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import random
+import matplotlib.pyplot as plt
 
 from mpi4py import MPI
 import numpy as np
@@ -82,3 +83,9 @@ MPI.Unpublish_name(service, info, port)
 
 log('Server: closing port...')
 MPI.Close_port(port)
+
+# plot node id vs load graph
+plt.xlabel('Node ID', fontsize=16)
+plt.ylabel('Load', fontsize=16)
+plt.bar(list(load.keys()), load.values(), color='g')
+plt.show()
