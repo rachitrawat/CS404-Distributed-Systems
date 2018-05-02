@@ -3,5 +3,5 @@ mpiexec --oversubscribe -np 1 python server.py
 Spawns M clients and does M queries
 
 # part 3 & 4:
-mpiexec --oversubscribe -np <no of processes> python client.py
+mpiexec --oversubscribe -np 10 python client.py
 Does M = 10 queries by default
