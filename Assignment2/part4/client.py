@@ -22,6 +22,7 @@ def log(msg, *args):
 data = []
 # index
 index = {}
+load = 0
 
 
 # allocate data to client nodes: 1-100,101-200.....
@@ -53,6 +54,9 @@ def send_queries_randomly():
 def output_path():
     for i in range(0, M):
         query = comm.recv(source=0, tag=0)
+        global load
+        load += 1
+        log("Load at client %s: %s", rank, load)
         if query not in index[rank]:
             for client, data in index.items():
                 if query in data:
