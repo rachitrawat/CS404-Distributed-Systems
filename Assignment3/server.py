@@ -1,9 +1,8 @@
 #! /usr/bin/env python
-import random
+
+import threading
 
 from mpi4py import MPI
-import matplotlib.pyplot as plt
-import threading
 
 M = int(input("\nEnter number of client nodes: "))
 T = int(input("\nEnter value of T seconds: "))
