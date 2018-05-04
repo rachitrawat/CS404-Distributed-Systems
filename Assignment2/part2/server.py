@@ -45,11 +45,11 @@ load = {}
 def allocate_data():
     count = 0
     for i in range(0, M):
-        data = list(range(count + 1, (count + 1) + 100))
+        data = list(range(count + 1, (count + 1) + 1))
         comm.send(data, dest=i, tag=0)
         index[i] = data
         load[i] = 0
-        count += 100
+        count += 1
 
 
 # generate M queries based on a zipf distribution
