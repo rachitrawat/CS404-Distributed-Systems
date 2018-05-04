@@ -1,0 +1,1 @@
+mpiexec --oversubscribe -np 1 python server.py
