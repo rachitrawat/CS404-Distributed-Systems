@@ -3,6 +3,7 @@ import random
 
 from mpi4py import MPI
 import matplotlib.pyplot as plt
+import threading
 
 M = int(input("\nEnter number of client nodes: "))
 T = int(input("\nEnter value of T seconds: "))
@@ -22,7 +23,7 @@ info = MPI.INFO_NULL
 port = MPI.Open_port(info)
 log("Server: opened port: '%s'", port)
 
-service = 'master'
+service = 'server'
 MPI.Publish_name(service, info, port)
 log("Server: published service: '%s'", service)
 
@@ -38,8 +39,19 @@ log('Server: client connected...')
 # allocate timer T to every client
 def allocate_timer():
     for i in range(0, M):
-        data = T
-        comm.send(data, dest=i, tag=0)
+        comm.send(T, dest=i, tag=0)
+
+
+# recv comments from client every T+10 sec
+def recv_comment_thread():
+    threading.Timer(T + 10, recv_comment_thread).start()
+    with open("server_comment/server.txt", 'a+') as file_w:
+        for i in range(0, M):
+            comment = comm.recv(source=i, tag=0)
+            file_w.write(comment)
 
 
 allocate_timer()
+
+# start thread
+recv_comment_thread()
